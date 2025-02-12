@@ -28,8 +28,8 @@ namespace RegexGrupp
         private static DataFetch _fetchItems = new DataFetch();
         private static readonly string _AssertDateFormat = @"(?<Date>(?<Year>20\d{2})(?<del>[-/])(?<Month>((0[1-9]))|(1[0-2]))(\k<del>)(?<DayCheck>(0[1-9]|1[0-9]|2[0-8])|((?<Valid31>(?<!(0[246]|11)((\k<del>)))31)|(?<Valid30>(?<!02(\k<del>))(29|30)))))";
         private static readonly string _AssertDateRange = @"(?<Date>(?<year>(2016))(?<deli>([/-]))(?<month>(0[6-9]|1[1-2]))(\k<deli>)(?<Day>(0[1-9]|1[0-9]|2[0-9]|30)|(?((?<!(0[9]|11))((\k<deli>)31))|(?<=(0[78]|1[0-2])(\k<deli>))31)))";
-        private static readonly string _FindByDate       = @"((?<Date>((<DateStart>)))(?:(?!\d)(\W?))(?<time>(0[7-9]|1[0-7]):\d{2}:\d{2})(?:(?!\d)(\W?))(?<sensorPos>[Ii]{1,4}[Nn]{1,4}[Ee]{1,4})(?:(?!\d)(\W?))(?( |\t| \w))(?<temp>(\d{2})\.\d)(?:(?!\d)(\W?))(?<humidity>\d{2}))";
-        private static readonly string _FindByDateDayEnd = @"((?<Date>((<DateStart>)))(?:(?!\d)(\W?))(?<time>(1[8-9]|2[0-3]|00):\d{2}:\d{2})(?:(?!\d)(\W?))(?<sensorPos>[Ii]{1,4}[Nn]{1,4}[Ee]{1,4})(?:(?!\d)(\W?))(?( |\t| \w))(?<temp>(\d{2})\.\d)(?:(?!\d)(\W?))(?<humidity>\d{2}))";
+        private static readonly string _FindByDate       = @"((?<Date><DateStart>)(?:(\W?))(?<time>(0[7-9]|1[0-9]):\d{2}:\d{2})(?:(\W?))(?<sensorPos>[Ii]{1,4}[Nn]{1,4}[Ee]{1,4})(?:(?(?=\W)(\W)+?|[^\d]))(?<temp>(\d{2})\.\d)(?:(\W+?))(?<humidity>\d{2}))";
+        private static readonly string _FindByDateDayEnd = @"((?<Date><DateStart>)(?:(\W+?))(?<time>(1[8-9]|2[0-3]|00):\d{2}:\d{2})(?:(\W*?))(?<sensorPos>[Ii]{1,4}[Nn]{1,4}[Ee]{1,4})(?:(\W*?))(?<temp>\d{2}\.\d)(?:(\W*?))(?<humidity>\d{2}))";
 
        // public static IEnumerable<string> AverageTemp(string UserInput)
        // {
@@ -59,7 +59,11 @@ namespace RegexGrupp
             bool som;
             if (som = reg.IsMatch(lineFromFile))
             {
-                Console.Read();
+                foreach(Group match in reg.Match(lineFromFile).Groups.Values.Where(x=> x.Value != null))
+                {
+                    Console.WriteLine(match.Value);
+                }
+                Console.ReadKey(true);
             }
             return som;
         }
@@ -67,11 +71,12 @@ namespace RegexGrupp
         {
             var file = new EvaluateFile();
             Regex reg = new(_endOfDayRegex);
-            var regexRex = reg.Match(lineFromFile);
+            var regexRex = reg.IsMatch(lineFromFile);
             var boolRes = false;
-            if (boolRes = regexRex.Groups.Values.Where(x=> x.Name == "Date").FirstOrDefault().Success)
+            if (regexRex)
             {
-                Console.WriteLine("End OF Read");
+                foreach(Group group in reg.Match(lineFromFile).Groups.Values.Where(x=> x.Value != null))
+                Console.WriteLine(group.Value);
             }
             return boolRes;
         }

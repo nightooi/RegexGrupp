@@ -44,14 +44,13 @@ namespace RegexGrupp
                         }
                         continue;
                     }
-                    yield return ClearRemainder(lineBuffer, i, 120);
                     if(sectionMatchEnd(currentLine))
                     {
                         Console.ReadLine();
+                        yield return ClearRemainder(lineBuffer, i, 120);
                         break;
                     }
                 }
-                yield return ClearRemainder(lineBuffer, i, 120);
             }
         }
         private string[] ClearRemainder(string[] arr, int lastwrite, int max)

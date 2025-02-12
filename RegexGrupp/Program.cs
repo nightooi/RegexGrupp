@@ -7,4 +7,4 @@ Console.WriteLine("Insert Date");
 var input = "2016-06-01";
 ins.AssertDateDay(input);
 await ins.AverageHumidity(input);
-
+Console.ReadLine();
