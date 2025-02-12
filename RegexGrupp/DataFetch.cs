@@ -8,7 +8,7 @@ namespace RegexGrupp
 {
     internal class DataFetch
     {
-        private const string _dataFile = "..\\Assets\\tempdata5-med fel.txt";
+        private const string _dataFile = "..\\..\\..\\Assets\\tempdata5-med fel.txt";
         public StreamReader GetDataReader()
         {
            return new StreamReader(_dataFile);
