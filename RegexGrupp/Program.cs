@@ -6,5 +6,6 @@ var ins = new Inside();
 Console.WriteLine("Insert Date");
 var input = "2016-06-01";
 ins.AssertDateDay(input);
-await ins.AverageHumidity(input);
+await ins.AverageTemInsidepAsync();
+await ins.AverageHumidityInsidePerDayAsync();
 Console.ReadLine();

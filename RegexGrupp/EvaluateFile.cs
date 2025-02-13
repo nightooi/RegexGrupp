@@ -13,6 +13,7 @@ namespace RegexGrupp
     internal class EvaluateFile
     {
         private DataFetch _dataFetch;
+        private const int _bufferLen = 120;
         public async IAsyncEnumerable<IEnumerable<string>> EnumerableStringsAsync(Func<string, bool> sectionMatchStart,
             Func<string, bool> sectionMatchEnd)
         {
@@ -20,17 +21,14 @@ namespace RegexGrupp
             using (var reader = (_dataFetch = new()).GetDataReader())
             {
                 List<Task<Match>> matchTasks = new();
-                string[] lineBuffer = new string[120];
+                string[] lineBuffer = new string[_bufferLen];
                 string? currentLine = string.Empty;
                 int i = 0;
                 bool start = false;
                 List<CancellationTokenSource> TaskCancel = new();
                 while((currentLine = await reader.ReadLineAsync()) is not null){
                     if (!start && sectionMatchStart(currentLine))
-                    {
                         start = true;
-                        Console.ReadLine();
-                    }
 
                     if (start)
                     {
@@ -40,15 +38,14 @@ namespace RegexGrupp
                         {
                             yield return lineBuffer;
                             i = 0;
-                            lineBuffer = new string[120];
+                            lineBuffer = new string[_bufferLen];
+                        }
+                        if(sectionMatchEnd(currentLine))
+                        {
+                            yield return ClearRemainder(lineBuffer, i, _bufferLen);
+                            break;
                         }
                         continue;
-                    }
-                    if(sectionMatchEnd(currentLine))
-                    {
-                        Console.ReadLine();
-                        yield return ClearRemainder(lineBuffer, i, 120);
-                        break;
                     }
                 }
             }
@@ -94,14 +91,14 @@ namespace RegexGrupp
         /// <param name="sectionMatchEnd"></param>
         /// <param name="matchedResults"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<Match>> EvalWholeSectionAsync(
+        public async Task<IEnumerable<MatchCollection>> EvalWholeSectionAsync(
             Func<string, bool> sectionMatchStart,
             Func<string, bool> sectionMatchEnd,
-            Func<IEnumerable<string>, Match> matchedResults)
+            Func<IEnumerable<string>, MatchCollection> matchedResults)
         {
             int maxAllowedThreads = 11;
             var semaphore = new SemaphoreSlim(maxAllowedThreads);
-            List<Task<Match>> matchTasks = new();
+            List<Task<MatchCollection>> matchTasks = new();
             List<CancellationTokenSource> cancelTokens = new();
             try
             {
@@ -109,7 +106,7 @@ namespace RegexGrupp
                 {
                     await semaphore.WaitAsync();
                     var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-                    var run = Task.Run<Match?>(() =>
+                    var run = Task.Run<MatchCollection?>(() =>
                     {
                         try {
 
