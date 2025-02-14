@@ -14,6 +14,14 @@ namespace RegexGrupp
     {
         private DataFetch _dataFetch;
         private const int _bufferLen = 120;
+        public void PauseRead()
+        {
+            _dataFetch.PauseRead();
+        }
+        public void ResumeRead()
+        {
+            _dataFetch.ResumeRead();
+        }
         public async IAsyncEnumerable<IEnumerable<string>> EnumerableStringsAsync(Func<string, bool> sectionMatchStart,
             Func<string, bool> sectionMatchEnd)
         {
@@ -58,12 +66,12 @@ namespace RegexGrupp
             }
             return arr;
         }
-        public async Task<IEnumerable<Match>> EvalSectionByLineAsync(
+        public async Task<IEnumerable<TResult>> EvalSectionByLineAsync<TResult>(
             Func<string, bool> sectionMatchStart,
             Func<string, bool> sectionMatchEnd,
-            Func<string, Match> matchedResults)
+            Func<string, TResult> matchedResults)
         {
-            List<Match> Matches = new();
+            List<TResult> Matches = new();
             using (var reader = (_dataFetch = new()).GetDataReader())
             {
                 string? currentLine = string.Empty;
@@ -91,14 +99,14 @@ namespace RegexGrupp
         /// <param name="sectionMatchEnd"></param>
         /// <param name="matchedResults"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<MatchCollection>> EvalWholeSectionAsync(
+        public async Task<IEnumerable<TResult>> EvalWholeSectionAsync<TResult>(
             Func<string, bool> sectionMatchStart,
             Func<string, bool> sectionMatchEnd,
-            Func<IEnumerable<string>, MatchCollection> matchedResults)
+            Func<IEnumerable<string>, TResult> matchedResults)
         {
             int maxAllowedThreads = 11;
             var semaphore = new SemaphoreSlim(maxAllowedThreads);
-            List<Task<MatchCollection>> matchTasks = new();
+            List<Task<TResult>> matchTasks = new();
             List<CancellationTokenSource> cancelTokens = new();
             try
             {
@@ -106,7 +114,7 @@ namespace RegexGrupp
                 {
                     await semaphore.WaitAsync();
                     var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-                    var run = Task.Run<MatchCollection?>(() =>
+                    var run = Task.Run<TResult>(() =>
                     {
                         try {
 
