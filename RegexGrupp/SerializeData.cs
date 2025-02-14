@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,13 +21,8 @@ namespace RegexGrupp
                 _resultsPerDay = new();
 
             _resultsPerDay.Add(result);
-            if(_resultsPerDay.Count > 20)
-            {
-                await WriteAsync();
-                _resultsPerDay.Clear();
-            }
         }
-        private async Task Quit()
+        public async Task Quit()
         {
             if(_resultsPerDay.Count > 0)
             {
@@ -34,8 +31,7 @@ namespace RegexGrupp
         }
         private async Task WriteAsync()
         {
-            using FileStream fs = new FileStream(_path, FileMode.Create, FileAccess.ReadWrite);
-
+            using FileStream fs = new FileStream(_path, FileMode.OpenOrCreate, FileAccess.ReadWrite);
             using(var writer =  new StreamWriter(fs))
             {
                 foreach (var item in _resultsPerDay)
