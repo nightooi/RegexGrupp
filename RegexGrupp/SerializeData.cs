@@ -26,14 +26,12 @@ namespace RegexGrupp
 
         private async Task WriteAsync()
         {
-            if (!File.Exists(_path))
-            {
-                File.Create(_path);
-            }
-            using(var writer =  new StreamWriter(_path, true))
+            using FileStream fs = new FileStream(_path, FileMode.Create, FileAccess.ReadWrite);
+
+            using(var writer =  new StreamWriter(fs))
             {
                 foreach (var item in _resultsPerDay)
-                    await writer.WriteLineAsync($"{item.Date}: {item.AverageTemp}, {item.AverageHumidity}");
+                    await writer.WriteLineAsync($"{item.Date}: {item.AverageTemp}, {item.AverageHumidity}, {item.Position.ToString()}");
             }
         }
     }

@@ -34,7 +34,7 @@ namespace RegexGrupp
         private Regex SectionEvaluation = new Regex(_FindData, RegexOptions.Multiline, TimeSpan.FromSeconds(10));
         private const string _dateAssert = "<ASSERTDATE>";
         private static DataFetch _fetchItems = new DataFetch();
-        private static string _FindData = "((<ASSERTDATE>))(\\s|\\W)*?(?<time>((0[0-9]|1[0-9]|2[0-3]):(\\d{0,2}):(\\d{0,2})))(?:(\\W*?))(?<sensorPos>[Ii]{1,4}[Nn]{1,4}[Ee]{1,4}|[Uu]{1,4}[Tt]{1,4}[Ee]{1,4})(?:(\\W*?))(?<temp>\\d{2}\\.\\d)(?:(\\W*?))(?<humidity>\\d{2})(\\s|\\W)*?$";
+        private static string _FindData = "((<ASSERTDATE>))(\\s|\\W)*?(?<time>((0[0-9]|1[0-9]|2[0-3]):(\\d{0,2}):(\\d{0,2})))(?:(\\W*?))(?<sensorPos>[Ii]{1,4}[Nn]{1,4}[Ee]{1,4}|[Uu]{1,4}[Tt]{1,4}[Ee]{1,4})(?:(\\W*?))(?<temp>\\d{0,2}\\.\\d{0,2})(?:(\\W*?))(?<humidity>\\d{0,2})(\\s|\\W)*?$";
         private static readonly string _Position = "<POSITION>";
         private static readonly string _AssertDateFormat = @"(?<Date>(?<Year>20\d{2})(?<del>[-/])(?<Month>((0[1-9]))|(1[0-2]))(\k<del>)(?<DayCheck>(0[1-9]|1[0-9]|2[0-8])|((?<Valid31>(?<!(0[246]|11)((\k<del>)))31)|(?<Valid30>(?<!02(\k<del>))(29|30)))))";
         private static readonly string _AssertDateRange =  @"(?<Date>(?<year>(2016))(?<deli>([/-]))(?<month>(0[6-9]|1[0-2]))(\k<deli>)(?<Day>(0[1-9]|1[0-9]|2[0-9]|30)|(?((?<!(0[9]|11))((\k<deli>)31))|(?<=(0[78]|1[0-2])(\k<deli>))31)))";
