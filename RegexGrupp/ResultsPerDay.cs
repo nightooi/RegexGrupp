@@ -13,7 +13,7 @@ namespace RegexGrupp
         public DateOnly Date { get; set; } = date;
         public float AverageTemp { get; set; } = temp;
         public int AverageHumidity { get; set; } = humidity;
-        public bool Complete { get; set; }
+        public float MoldRisk { get; set; }
     }
 }
 internal enum Position { Inside, Outside}

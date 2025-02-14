@@ -12,6 +12,7 @@ namespace RegexGrupp
 
         private string _path = "..\\..\\..\\Results\\Result.txt";
         private string _subDirPath = "..\\..\\..\\Results\\";
+        object lockRes = new();
         public async Task Add(ResultsPerDay result)
         {
             if (_resultsPerDay is null)
@@ -21,9 +22,16 @@ namespace RegexGrupp
             if(_resultsPerDay.Count > 20)
             {
                 await WriteAsync();
+                _resultsPerDay.Clear();
             }
         }
-
+        private async Task Quit()
+        {
+            if(_resultsPerDay.Count > 0)
+            {
+                await WriteAsync();
+            }
+        }
         private async Task WriteAsync()
         {
             using FileStream fs = new FileStream(_path, FileMode.Create, FileAccess.ReadWrite);
@@ -31,7 +39,7 @@ namespace RegexGrupp
             using(var writer =  new StreamWriter(fs))
             {
                 foreach (var item in _resultsPerDay)
-                    await writer.WriteLineAsync($"{item.Date}: {item.AverageTemp}, {item.AverageHumidity}, {item.Position.ToString()}");
+                    await writer.WriteLineAsync($"{item.Date}: T:\t {item.AverageTemp}, H:\t {item.AverageHumidity}, M:\t {item.MoldRisk}, P:\t {item.Position.ToString()}");
             }
         }
     }

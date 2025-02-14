@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace RegexGrupp
 {
-    internal class Inside
+    internal class Parser
     {
         //◦ Medeltemperatur och luftfuktighet per dag, för valt datum (sökmöjlighet med
         //validering)
@@ -93,6 +93,22 @@ namespace RegexGrupp
             }
             return regex.Matches(sb.ToString());};
         }
+        public void CalcMold()
+        {
+            var mold = new Mold();
+            var orderedResults = ResultsPerDay.OrderBy(x => x.Date);
+            int i = 0;
+            foreach(var item in orderedResults)
+            {
+                if(i > 0)
+                {
+                    item.MoldRisk = mold.CalcMoldRisk(item.AverageHumidity, item.AverageTemp, orderedResults.ElementAt(i-1).MoldRisk);
+                    continue;
+                }
+                item.MoldRisk = mold.CalcMoldRisk(item.AverageHumidity, item.AverageTemp, 0.0f);
+                i++;
+            }
+        }
         public async Task CalcResultsAsync()
         {
             this.ResultsPerDay = await CalcBoth();
@@ -104,16 +120,21 @@ namespace RegexGrupp
             }
         }
         [Flags]
-        public enum SortBy { Inside, Outside, Humidity, Temp}
+        public enum SortBy { Inside, Outside, Humidity, Temp, Mold}
         public void FindAutumn()
         {
-            FindWindow(new DateOnly(2016, 08, 01), 10.0f);
+            FindWindow(new DateOnly(2016, 08, 01), 10.0f, (obj) => {
+                Console.WriteLine($"First day of Autumn in the Year 2016 was {obj.Date}");
+            });
         }
-        public void FindWiner()
+        public void FindWinter()
         {
-            FindWindow(new DateOnly(2016, 08, 01), 0.0f);
+            FindWindow(new DateOnly(2016, 08, 01), 0.0f, (obj) =>
+            {
+                Console.WriteLine($"First day of Winter in the Year 2016 was {obj.Date}");
+            });
         }
-        public void FindWindow(DateOnly Starting, float Temp)
+        public void FindWindow(DateOnly Starting, float Temp, Action<ResultsPerDay> Display)
         {
             var res = ResultsPerDay
                 .Where(x => x.Date > Starting)
@@ -140,7 +161,7 @@ namespace RegexGrupp
                 var items = window.TakeWhile(x => x?.AverageTemp < Temp).ToList();
                 if(items.Count == 5)
                 {
-                    Console.WriteLine($"First Day of Autumn 2016 was {res[0].Date}");
+                    Display(items[0]);
                     return;
                 }
                 if(items.Count > highestConsecutive)
@@ -152,7 +173,7 @@ namespace RegexGrupp
                     if (window[j]?.AverageTemp > Temp)
                         i = i + j;
             }
-            Console.WriteLine("Couldn't assert Autumn in the current dataset.");
+            Console.WriteLine($"Couldn't assert in the current dataset. Closes result was{res[offset]}: with {highestConsecutive} days consecutive");
         }
         public void Sort(SortBy sort)
         {
@@ -172,6 +193,14 @@ namespace RegexGrupp
                     .ToList();
                 ShowEnumerated(tempInside);
             }
+            else if(sort == SortBy.Inside && SortBy.Mold == sort)
+            {
+                var tempInside = ResultsPerDay
+                    .Where(x => x.Position == Position.Inside)
+                    .OrderBy(x => x.MoldRisk)
+                    .ToList();
+                ShowEnumerated(tempInside);
+            }
             else if(sort == SortBy.Outside && sort == SortBy.Humidity)
             {
                 var humidOutside = ResultsPerDay
@@ -180,11 +209,19 @@ namespace RegexGrupp
                     .ToList();
                 ShowEnumerated(humidOutside);
             }
-            else if(sort == SortBy.Inside && sort == SortBy.Temp)
+            else if(sort == SortBy.Outside && sort == SortBy.Temp)
             {
                 var humidOutside = ResultsPerDay
                     .Where(x => x.Position == Position.Inside)
                     .OrderBy(x => x.AverageTemp)
+                    .ToList();
+                ShowEnumerated(humidOutside);
+            }
+            else if(sort == SortBy.Outside && sort == SortBy.Mold)
+            {
+                var humidOutside = ResultsPerDay
+                    .Where(x => x.Position == Position.Inside)
+                    .OrderBy(x => x.MoldRisk)
                     .ToList();
                 ShowEnumerated(humidOutside);
             }
