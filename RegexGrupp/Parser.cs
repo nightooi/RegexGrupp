@@ -123,7 +123,7 @@ namespace RegexGrupp
         }
         public void FindWinter()
         {
-            FindWindow(new DateOnly(2016, 08, 01), 0.0f, (obj) =>
+            FindWindow(new DateOnly(2016, 08, 01), 1.0f, (obj) =>
             {
                 Console.WriteLine($"First day of Winter in the Year 2016 was {obj.Date}");
             });
@@ -431,18 +431,15 @@ namespace RegexGrupp
             var file = new EvaluateFile();
             Regex reg = new(_endOfDayRegex);
             var regexRex = reg.IsMatch(lineFromFile);
-            if (regexRex)
-            {
-                foreach(Group group in reg.Match(lineFromFile).Groups.Values.Where(x=> x.Value != null))
-                Console.WriteLine(group.Value);
-            }
-            return regexRex;
+           return regexRex;
         }
         public string AssertDateDay(string userinput)
         {
             string str = string.Empty;
+            //Dateformat = general date format
             var regex = new Regex(_AssertDateFormat);
             var matchRes = regex.Match(userinput);
+            //is Dud, likely never gonna work.
             if(!matchRes.Success)
             {
                 foreach(Group match in matchRes.Groups)
@@ -452,7 +449,7 @@ namespace RegexGrupp
             }
             if (!matchRes.Success)
                 return null;
-
+            //dateRange match file specific.
             var checkDateRegex = new Regex(_AssertDateRange);
             var matches = checkDateRegex.Match(userinput);
             if (!matches.Groups["Date"].Success)
@@ -462,6 +459,7 @@ namespace RegexGrupp
                     FormatAssertionFailed(match.Name);
                 }
             }
+            //
             _dayRegex = Regex.Replace(_FindByDate, "(<DateStart>)", userinput);
            _endOfDayRegex = Regex.Replace(_FindEnd, "(<DateStart>)", userinput);
             return _dayRegex;

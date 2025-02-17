@@ -10,7 +10,7 @@ await ins.CalcResultsAsync();
 ins.FindAutumn();
 ins.FindWinter();
 Console.ReadLine();
-ins.Sort(Parser.SortBy.Inside | Parser.SortBy.Mold);
+ins.Sort((Parser.SortBy.Inside | Parser.SortBy.Mold));
 Console.WriteLine("-------------------------------------------------------------------------");
 ins.Sort(Parser.SortBy.Inside | Parser.SortBy.Temp);
 Console.WriteLine("-------------------------------------------------------------------------");

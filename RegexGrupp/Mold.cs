@@ -15,7 +15,7 @@ namespace RegexGrupp
             if (previousRisk > 0)
                 result = (float)(DirectRisk(humidity, temp) + ((DirectRisk(humidity, temp) - previousRisk) * 0.2));
             else
-                result = DirectRisk(humidity, temp);
+                result = (float)(DirectRisk(humidity, temp) * 0.2);
 
             if (result > 99)
                 return 99;
