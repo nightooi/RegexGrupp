@@ -43,6 +43,14 @@ namespace RegexGrupp
         private static readonly string _FindEnd =          @"(?<Date><DateStart>)(?:(\s\W*?))(?<time>(23:59:\d{2}))";
         private static readonly string _Inside = @"[Ii]{1,4}[Nn]{1,4}[Ee]{1,4}";
         private static readonly string _Outside = @"[Uu]{1,4}[Tt]{1,4}[Ee]{1,4}";
+        public async Task<float> AverageTempOutsideAsync()
+        {
+            Action<string> display = (result) =>
+            {
+                Console.WriteLine($"The Average Temperature Outside was: {result}");
+            };
+            return await CalcAveragePerDay("outside", "temp", BuildEndo, display);
+        }
         public async Task<float> AverageTemInsidepAsync()
         {
              Action<string> display = (result) =>
@@ -100,12 +108,10 @@ namespace RegexGrupp
         }
         public async Task CalcResultsAsync()
         {
+            Console.WriteLine("loading started");
             this.ResultsPerDay = await CalcBoth();
             var serialize = new SerializeData();
-            foreach(var i in ResultsPerDay)
-            {
-                Console.WriteLine($"{i.Date}: {i.AverageHumidity} - {i.AverageTemp} - {i.Position}");
-            }
+            Console.WriteLine("File loaded");
             CalcMold();
             foreach(var item in ResultsPerDay)
             {
@@ -287,8 +293,9 @@ namespace RegexGrupp
             var positionMatch = new Regex(_Inside);
                 var items = matches
                     .Where(x => x.Success)
-                    .Select(x => new
+                    .Select(x => new 
                     {
+                        time = x.Groups["time"].Value,
                         pos = x.Groups["sensorPos"].Value,
                         date = x.Groups["Date"].Value,
                         temp = x.Groups["temp"].Value,
@@ -297,13 +304,21 @@ namespace RegexGrupp
                     .GroupBy(x => new { pos = x.pos, date = x.date })
                     .Select(x => new
                     {
+                        time = x.Select(x => x.time).ToList(),
                         date = x.Key.date,
                         pos = x.Key.pos,
                         temp = x.Select(x => x.temp).ToList(),
                         humidity = x.Select(x => x.humidity).ToList()
                     });
-                var parsed = ItemTransformer(items, (i) =>
+                var parsed = ItemTransformer(items,
+                    (i) =>
+
                 {
+                    var time = i.time.Select(x => TimeOnly.Parse(x)).First();
+                    var average = CalcAverage(i.temp);
+
+                    if (time.Hour > 9 && time.Hour < 12)
+                        average -= 1;
                     Position pos = Position.Outside;
                     if (positionMatch.IsMatch(i.pos))
                     {
@@ -312,7 +327,7 @@ namespace RegexGrupp
                        var current = new ResultsPerDay(
                         pos,
                         DateOnly.Parse(i.date),
-                        CalcAverage(i.temp),
+                        average,
                         (int)CalcAverage(i.humidity)
                     );
                     return current;
