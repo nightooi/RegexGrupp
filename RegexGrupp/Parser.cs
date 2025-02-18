@@ -100,7 +100,7 @@ namespace RegexGrupp
             {
                 if(i > 0)
                 {
-                    item.MoldRisk = mold.CalcMoldRisk(item.AverageHumidity, item.AverageTemp, orderedResults.ElementAt(i-1).MoldRisk);
+                    item.MoldRisk = mold.CalcMoldRisk(item.AverageHumidity, item.AverageTemp, (float)orderedResults.ElementAt(i-1).MoldRisk);
                     continue;
                 }
                 item.MoldRisk = mold.CalcMoldRisk(item.AverageHumidity, item.AverageTemp, 0.0f);
@@ -114,9 +114,28 @@ namespace RegexGrupp
             var serialize = new SerializeData();
             Console.WriteLine("File loaded");
             CalcMold();
-            foreach(var item in ResultsPerDay)
+            foreach (var month in ResultsPerDay.
+                GroupBy(x => new {
+                    month = x.Date.Month, 
+                    pos = x.Position
+            }).Select(x => new
             {
-                await serialize.Add(item);
+                month = x.Key.month,
+                pos = x.Key.pos,
+                averageMoldMonth = x.Average(x => x.MoldRisk),
+                averageTempMonth = x.Average(x => x.AverageTemp),
+                avergaHumidityMonth = x.Average(x=> x.AverageHumidity)
+            }))
+            {
+                serialize.Add(
+                    new RegexGrupp.ResultsPerDay(
+                        month.pos,
+                    new DateOnly(2016,
+                    month.month,
+                    01),
+                    month.averageTempMonth,
+                    (int)month.averageTempMonth,
+                    month.averageMoldMonth));
             }
             await serialize.Quit();
         }
@@ -329,7 +348,8 @@ namespace RegexGrupp
                         pos,
                         DateOnly.Parse(i.date),
                         average,
-                        (int)CalcAverage(i.humidity)
+                        (int)CalcAverage(i.humidity),
+                        null
                     );
                     return current;
                 });

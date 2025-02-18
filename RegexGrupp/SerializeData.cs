@@ -34,8 +34,12 @@ namespace RegexGrupp
             using FileStream fs = new FileStream(_path, FileMode.OpenOrCreate, FileAccess.ReadWrite);
             using(var writer =  new StreamWriter(fs))
             {
-                foreach (var item in _resultsPerDay)
-                    await writer.WriteLineAsync($"{item.Date}: T:\t {item.AverageTemp}, H:\t {item.AverageHumidity}, M:\t {item.MoldRisk}, P:\t {item.Position.ToString()}");
+                foreach (var item in _resultsPerDay.GroupBy(x=> x.Position))
+                {
+                    foreach(var pos in item)
+                        await writer.WriteLineAsync($"{pos.Date.Month}: T:\t {pos.AverageTemp}, H:\t {pos.AverageHumidity}, M:\t {pos.MoldRisk}, P:\t {pos.Position.ToString()}");
+                    await writer.WriteLineAsync("----------------------------------------------------------------------------------");
+                }
             }
         }
     }

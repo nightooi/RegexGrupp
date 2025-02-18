@@ -23,20 +23,20 @@ namespace RegexGrupp
         {
             parser.FindAutumn();
         }
-        public void selectDateInside()
+        public async Task selectDateInside()
         {
             Console.WriteLine("Insert Date");
             var input = Console.ReadLine();
             parser.AssertDateDay(input);
-            Task.Run(parser.AverageHumidityInsidePerDayAsync);
-            Task.Run(parser.AverageTemInsidepAsync);
+            await parser.AverageHumidityInsidePerDayAsync();
+            await parser.AverageTemInsidepAsync();
         }
         public async Task selectOutside()
         {
             Console.WriteLine("Insert Date");
             var input = Console.ReadLine();
             parser.AssertDateDay(input);
-            var t = await parser.AverageTempOutsideAsync();
+            await parser.AverageTempOutsideAsync();
         }
         public void run()
         {
@@ -55,11 +55,11 @@ namespace RegexGrupp
             }
             if (parseresult == 1)
             {
-                selectDateInside();
+                Task.Run(selectDateInside);
             }
             else if (parseresult == 2)
             {
-                selectOutside();
+                Task.Run(selectOutside);
             }
             else if (parseresult == 3)
             {
@@ -77,6 +77,8 @@ namespace RegexGrupp
             {
                 return;
             }
+            Console.ReadKey(true);
+            Console.Clear();
             run();
         }
         public void selectSort()
