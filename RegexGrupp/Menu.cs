@@ -31,12 +31,12 @@ namespace RegexGrupp
             Task.Run(parser.AverageHumidityInsidePerDayAsync);
             Task.Run(parser.AverageTemInsidepAsync);
         }
-        public void selectOutside()
+        public async Task selectOutside()
         {
             Console.WriteLine("Insert Date");
             var input = Console.ReadLine();
             parser.AssertDateDay(input);
-            Task.Run(parser.AverageTempOutsideAsync);
+            var t = await parser.AverageTempOutsideAsync();
         }
         public void run()
         {
