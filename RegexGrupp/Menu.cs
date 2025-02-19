@@ -77,8 +77,6 @@ namespace RegexGrupp
             {
                 return;
             }
-            Console.ReadKey(true);
-            Console.Clear();
             run();
         }
         public void selectSort()
@@ -108,7 +106,6 @@ namespace RegexGrupp
             Console.WriteLine("2. Temp");
             Console.WriteLine("3. Humidity");
             Console.WriteLine("4. Exit");
-            Console.ReadLine();
             var choice = Console.ReadLine();
             int choiceParsed = -1;
 
@@ -134,6 +131,8 @@ namespace RegexGrupp
                 return;
             }
             parser.Sort(sort);
+            Console.ReadKey();
+            Console.Clear();
         }
     }
 }
